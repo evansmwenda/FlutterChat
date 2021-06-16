@@ -4,7 +4,7 @@ import 'package:flutter_chat/screens/chat_screen.dart';
 import 'package:flutter_chat/screens/homepage.dart';
 import 'package:flutter_chat/screens/login_screen.dart';
 import 'package:flutter_chat/screens/register_screen.dart';
-import 'package:flutter_chat/screens/search_screen.dart';
+import 'package:flutter_chat/screens/tabs/search_tab.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +27,6 @@ void main() async {
         RegisterScreen.routeName: (context) => RegisterScreen(), //RegisterScreen
         Homepage.routeName: (context) => Homepage(), //Homepage
         ChatScreen.routeName: (context) => ChatScreen(), //ChatScreen
-        SearchScreen.routeName: (context) => SearchScreen(), //SearchScreen
       },
     ),
   );
