@@ -133,37 +133,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _loginUser() {
-    // firebaseAuth
-    //     .createUserWithEmailAndPassword(
-    //     email: emailController.text, password: passController.text)
-    //     .then((result) {
-    //   dbRef.child(result.user.uid).set({
-    //     "email": emailController.text,
-    //     "name": nameController.text
-    //   }).then((res) {
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(builder: (context) => Home(uid: result.user.uid)),
-    //     );
-    //   });
-    // }).catchError((err) {
-    //   showDialog(
-    //       context: context,
-    //       builder: (BuildContext context) {
-    //         return AlertDialog(
-    //           title: Text("Error"),
-    //           content: Text(err.message),
-    //           actions: [
-    //             TextButton(
-    //               child: Text("Ok"),
-    //               onPressed: () {
-    //                 Navigator.of(context).pop();
-    //               },
-    //             )
-    //           ],
-    //         );
-    //       });
-    // });
+    print(emailController.text);
+    print(passController.text);
+    firebaseAuth
+        .signInWithEmailAndPassword(
+        email: emailController.text, password: passController.text)
+        .then((result) {
+      saveUser(result.user.uid);
+    }).catchError((err) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Error"),
+              content: Text(err.message),
+              actions: [
+                TextButton(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          });
+    });
   }
 
   @override
@@ -171,5 +165,11 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
     emailController.dispose();
     passController.dispose();
+  }
+
+  Future<void> saveUser(String uid) {
+    print("user id->>"+uid);
+    print("saving user details");
+    Navigator.pushNamed(context, Homepage.routeName);
   }
 }
