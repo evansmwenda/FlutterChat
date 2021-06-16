@@ -170,6 +170,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> saveUser(String uid) {
     print("user id->>"+uid);
     print("saving user details");
-    Navigator.pushNamed(context, Homepage.routeName);
+    Navigator.pushReplacementNamed(context, Homepage.routeName);
   }
 }
