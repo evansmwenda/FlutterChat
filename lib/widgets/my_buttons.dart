@@ -13,10 +13,10 @@ class MyElevatedButton extends StatelessWidget {
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18.0),
-              side: BorderSide(color: Colors.red),
+              side: BorderSide(color: Colors.blue),
             )
         ),
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.red[700]),
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue[700]),
       ),
       onPressed: () => onPressHandler(),
       child: SizedBox(

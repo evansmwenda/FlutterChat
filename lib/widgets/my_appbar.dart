@@ -16,8 +16,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget{
             gradient: LinearGradient(
 
               colors: [
-                const Color(0xffff0000),
-                const Color(0xff6b0000),
+                const Color(0xff005eff),
+                const Color(0xff002b6b),
               ],
             ),
           ),

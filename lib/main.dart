@@ -23,6 +23,7 @@ void main() async {
       initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(), //
+        LoginScreen.routeName: (context) => LoginScreen(), //LoginScreen
         RegisterScreen.routeName: (context) => RegisterScreen(), //RegisterScreen
         Homepage.routeName: (context) => Homepage(), //Homepage
         ChatScreen.routeName: (context) => ChatScreen(), //ChatScreen
