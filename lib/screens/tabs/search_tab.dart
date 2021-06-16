@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -11,6 +13,10 @@ class SearchTab extends StatefulWidget {
 
 class _SearchTabState extends State<SearchTab> {
   TextEditingController controller = new TextEditingController();
+  final User user = FirebaseAuth.instance.currentUser;
+  final Stream<QuerySnapshot> _usersStream =
+  FirebaseFirestore.instance.collection('users').snapshots();
+  CollectionReference messagesCollection = FirebaseFirestore.instance.collection('messages');
 
   List<UserDetails> _searchResult = [];
 
@@ -39,71 +45,65 @@ class _SearchTabState extends State<SearchTab> {
   @override
   Widget build(BuildContext context) {
     return new Column(
-        children: <Widget>[
-          new Container(
-            color: Theme.of(context).primaryColor,
-            child: new Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: new Card(
-                child: new ListTile(
-                  leading: new Icon(Icons.search),
-                  title: new TextField(
-                    controller: controller,
-                    decoration: new InputDecoration(
-                        hintText: 'Search', border: InputBorder.none),
-                    onChanged: onSearchTextChanged,
-                  ),
-                  trailing: new IconButton(
-                    icon: new Icon(Icons.cancel),
-                    onPressed: () {
-                      controller.clear();
-                      onSearchTextChanged('');
-                    },
-                  ),
+      children: <Widget>[
+        new Container(
+          color: Theme.of(context).primaryColor,
+          child: new Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: new Card(
+              child: new ListTile(
+                leading: new Icon(Icons.search),
+                title: new TextField(
+                  controller: controller,
+                  decoration: new InputDecoration(
+                      hintText: 'Search', border: InputBorder.none),
+                  onChanged: onSearchTextChanged,
+                ),
+                trailing: new IconButton(
+                  icon: new Icon(Icons.cancel),
+                  onPressed: () {
+                    controller.clear();
+                    onSearchTextChanged('');
+                  },
                 ),
               ),
             ),
           ),
-          new Expanded(
-            child: _searchResult.length != 0 || controller.text.isNotEmpty
-                ? new ListView.builder(
-                    itemCount: _searchResult.length,
-                    itemBuilder: (context, i) {
-                      return new Card(
-                        child: new ListTile(
-                          leading: new CircleAvatar(
-                            backgroundImage: new NetworkImage(
-                              _searchResult[i].profileUrl,
-                            ),
+        ),
+        new Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+                  stream: _usersStream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Something went wrong');
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading");
+                    }
+
+                    return new ListView(
+                      children:
+                          snapshot.data.docs.map((DocumentSnapshot document) {
+                        Map<String, dynamic> data =
+                            document.data() as Map<String, dynamic>;
+                        return new ListTile(
+                          onTap: () => _showDialog(data['name'], data['id']),
+                          title: Text(data['name']),
+                          subtitle: Text(data['email']),
+                          leading: CircleAvatar(
+                            radius: 20.0,
+                            // backgroundColor: Colors.transparent,
+                            backgroundImage: AssetImage('assets/user.webp'),
                           ),
-                          title: new Text(_searchResult[i].firstName +
-                              ' ' +
-                              _searchResult[i].lastName),
-                        ),
-                        margin: const EdgeInsets.all(0.0),
-                      );
-                    },
-                  )
-                : new ListView.builder(
-                    itemCount: _userDetails.length,
-                    itemBuilder: (context, index) {
-                      return new Card(
-                        child: new ListTile(
-                          leading: new CircleAvatar(
-                            backgroundImage: new NetworkImage(
-                              _userDetails[index].profileUrl,
-                            ),
-                          ),
-                          title: new Text(_userDetails[index].firstName +
-                              ' ' +
-                              _userDetails[index].lastName),
-                        ),
-                        margin: const EdgeInsets.all(0.0),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        );
+                      }).toList(),
+                    );
+                  })
+,
+        ),
+      ],
     );
   }
 
@@ -121,8 +121,68 @@ class _SearchTabState extends State<SearchTab> {
 
     setState(() {});
   }
-}
 
+  void _showDialog(String name,String uid) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Let\'s Chat"),
+            content: Text("Send Chat Request to $name?"),
+            actions: [
+              TextButton(
+                child: Text("Ok"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _sendChatRequest(uid);
+                },
+              ),
+              TextButton(
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  void _sendChatRequest(String uid) {
+    //write message to firestore database
+    print("sending chat request");
+    String myTimestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    print("timestamp $myTimestamp");
+
+    String conversationID = getConversationID(
+      user.uid,uid
+    );
+    print("conversationID $conversationID");
+
+    messagesCollection
+        .doc(conversationID)
+        .collection(conversationID)
+        .doc(myTimestamp)
+        .set({
+      'content': "Heyy, Let's chat", // John Doe
+      'idFrom': user.uid,//current users uid
+      'idTo': uid,//new friend's uid
+      'read': false,
+      'timestamp': myTimestamp
+    }).then((value) {
+      print("Message Sent");
+    }).catchError((error) => print("Failed to add user: $error"));
+  }
+
+  String getConversationID(String userID, String peerID) {
+    return userID.hashCode <= peerID.hashCode
+        ? userID + '_' + peerID
+        : peerID + '_' + userID;
+  }
+}
 
 class UserDetails {
   final int id;

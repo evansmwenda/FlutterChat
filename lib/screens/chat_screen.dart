@@ -22,6 +22,8 @@ class _ChatScreenState extends State<ChatScreen> {
   CollectionReference messagesCollection = FirebaseFirestore.instance.collection('messages');
   Stream<QuerySnapshot> _messagesStream;
   Timestamp time;
+  ScrollController _scrollController = new ScrollController();
+
   @override
   initState() {
     super.initState();
@@ -119,7 +121,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 padding: const EdgeInsets.only(
                                     left: 8.0,right: 8.0, top: 2,bottom:5),
                                 child: Text(
-                                  DateTime.parse(data['timestamp'].toString()).toString(),
+                                 "4:21pm",//+ DateTime.parse(data['timestamp']).toString(),
                                   style: TextStyle(fontWeight: FontWeight.w400),
                                 ),
                               ),
@@ -179,7 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _sendMessage() {
     print("sending message"+messageController.text);
-    String myTimestamp = Timestamp.now().seconds.toString();
+    String myTimestamp = DateTime.now().millisecondsSinceEpoch.toString();
     print("timestamp $myTimestamp");
 
     //write message to firestore database
@@ -196,6 +198,6 @@ class _ChatScreenState extends State<ChatScreen> {
     })
         .then((value){ print("Message Sent");messageController.clear();})
         .catchError((error) => print("Failed to add user: $error"));
-
   }
+
 }

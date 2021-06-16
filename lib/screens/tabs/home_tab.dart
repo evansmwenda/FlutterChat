@@ -15,6 +15,14 @@ class _HomeTabState extends State<HomeTab> {
   final User user = FirebaseAuth.instance.currentUser;
   final Stream<QuerySnapshot> _usersStream =
       FirebaseFirestore.instance.collection('users').snapshots();
+  final Stream<QuerySnapshot> _messagesStream =
+  FirebaseFirestore.instance.collection('messages').snapshots();
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,9 +57,34 @@ class _HomeTabState extends State<HomeTab> {
               );
             }));
   }
+  String getConversationID(String userID, String peerID) {
+    return userID.hashCode <= peerID.hashCode
+        ? userID + '_' + peerID
+        : peerID + '_' + userID;
+  }
 
   void _gotoChats(String uid,String name) {
     print("clicked chat->"+uid);
+    String conversationID = getConversationID(user.uid, uid);
+    print("conversation id $conversationID");
+    //todo: look if document id exists
+    // var count = FirebaseFirestore.instance.collection('messages').doc(conversationID).get();
+    // var count = FirebaseFirestore.instance.collection('messages')
+    //     .where(FieldPath.documentId,isEqualTo: conversationID).get();
+    // print("count->>" +count.toString());
+    
+    //
+    // var docRef = FirebaseFirestore.instance.collection("messages").doc(conversationID);
+    // docRef.get().then((value) {
+    //   if(value.exists){
+    //     print("Document data: "+value.id.toString());
+    //   }else{
+    //     print("No such document!");
+    //   }
+    // }).catchError((onError){print("getting error "+onError.toString());});
+
+
+    // print("count->>"+count.toString());
     Navigator.push(
       context,
       MaterialPageRoute(
