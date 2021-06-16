@@ -36,7 +36,6 @@ class _HomepageState extends State<Homepage> {
       case 2:
         return _profileTab;
         break;
-
       default:
         return _homeTab;
         break;

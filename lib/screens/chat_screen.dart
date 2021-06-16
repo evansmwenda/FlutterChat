@@ -1,112 +1,201 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/chat_message.dart';
 import 'package:flutter_chat/widgets/my_appbar.dart';
+import 'package:flutter_chat/widgets/route_arguments.dart';
 
 class ChatScreen extends StatefulWidget {
   static const routeName = '/chat-screen';
-  const ChatScreen({Key key}) : super(key: key);
+  final String peerUid;
+  final String userUid;
+  final String name;
+  const ChatScreen({this.peerUid, this.userUid,this.name});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  List<ChatMessage> messages = [
-    ChatMessage(messageContent: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit sed diam nonummy nibh adipiscing elit sed diam nonummy nibh", messageType: "receiver"),
-    ChatMessage(messageContent: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit sed diam nonummy nibh adipiscing elit sed diam nonummy nib", messageType: "sender"),
-    ChatMessage(messageContent: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit sed diam nonummy nibh adipiscing elit sed diam nonummy nib", messageType: "receiver"),
-    ChatMessage(messageContent: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit sed diam nonummy nibh adipiscing elit sed diam nonummy nib?", messageType: "sender"),
-    ChatMessage(messageContent: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit sed diam nonummy nibh adipiscing elit sed diam nonummy nib", messageType: "receiver"),
-    ChatMessage(messageContent: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit sed diam nonummy nibh adipiscing elit sed diam nonummy nib?", messageType: "sender"),
-  ];
+  String conversationID;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final TextEditingController messageController = new TextEditingController();
+  CollectionReference messagesCollection = FirebaseFirestore.instance.collection('messages');
+  Stream<QuerySnapshot> _messagesStream;
+  Timestamp time;
+  @override
+  initState() {
+    super.initState();
+    conversationID = getConversationID(widget.peerUid, widget.userUid);
+    print("conversation id->>> $conversationID");
+    _messagesStream = FirebaseFirestore.instance
+        .collection('messages')
+        .doc(conversationID)
+        .collection(conversationID)
+        .snapshots();
+    print("stream->"+_messagesStream.toList().toString());
+  }
+
+  String getConversationID(String userID, String peerID) {
+    return userID.hashCode <= peerID.hashCode
+        ? userID + '_' + peerID
+        : peerID + '_' + userID;
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: MyAppBar(title: "Jane Doe"),
-      body: Stack(
+      appBar: MyAppBar(title: widget.name),
+      body: Column(
         children: <Widget>[
-          ListView.builder(
-            itemCount: messages.length,
-            shrinkWrap: true,
-            padding: EdgeInsets.only(top: 10,bottom: 10),
-            // physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index){
-              return Container(
-                padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
-                child: Align(
-                  alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
-                  child: Column(
-                    crossAxisAlignment: (messages[index].messageType == "receiver"?
-                    CrossAxisAlignment.start:CrossAxisAlignment.end),
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: (messages[index].messageType == "receiver"?
-                          BorderRadius.only(
-                            topRight: Radius.circular(20),
-                            topLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20),
-                          ):
-                          BorderRadius.only(
-                            topRight: Radius.circular(20),
-                            topLeft: Radius.circular(20),
-                            bottomLeft: Radius.circular(20),
-                          )),
-                          color: (messages[index].messageType  == "receiver"?Colors.grey.shade200:Colors.blue[700]),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+                stream: _messagesStream,
+                builder:
+                    (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Something went wrong');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text("Loading");
+                  }
+
+                  return new ListView(
+                    children: snapshot.data.docs.map((DocumentSnapshot document) {
+                      Map<String, dynamic> data =
+                      document.data() as Map<String, dynamic>;
+                      return Container(
+                        padding:
+                        EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
+                        child: Align(
+                          alignment: (widget.userUid == data['idTo'] //"receiver"
+                              ? Alignment.topLeft
+                              : Alignment.topRight),
+                          child: Column(
+                            crossAxisAlignment:
+                            (widget.userUid == data['idTo'] //"receiver"
+                                ? CrossAxisAlignment.start
+                                : CrossAxisAlignment.end),
+                            children: [
+                              Container(
+                                margin: widget.userUid == data['idTo'] //"receiver"
+                                    ? EdgeInsets.only(right: 50.0)
+                                    : EdgeInsets.only(left: 50.0),
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                  (widget.userUid == data['idTo'] //"receiver"
+                                      ? BorderRadius.only(
+                                    topRight: Radius.circular(20),
+                                    topLeft: Radius.circular(20),
+                                    bottomRight: Radius.circular(20),
+                                  )
+                                      : BorderRadius.only(
+                                    topRight: Radius.circular(20),
+                                    topLeft: Radius.circular(20),
+                                    bottomLeft: Radius.circular(20),
+                                  )),
+                                  color: (widget.userUid == data['idTo'] //"receiver"
+                                      ? Colors.grey.shade200
+                                      : Colors.blue[700]),
+                                ),
+                                padding:
+                                EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4.0, horizontal: 5.0),
+                                  child: Text(
+                                    data['content'],
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: widget.userUid == data['idTo'] //"receiver"
+                                            ? Colors.black
+                                            : Colors.white),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 8.0,right: 8.0, top: 2,bottom:5),
+                                child: Text(
+                                  DateTime.parse(data['timestamp'].toString()).toString(),
+                                  style: TextStyle(fontWeight: FontWeight.w400),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.all(16),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical:5.0,horizontal: 8.0),
-                          child: Text(messages[index].messageContent, style: TextStyle(fontSize: 15,
-                              color: messages[index].messageType  == "receiver"?Colors.black:Colors.white),),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal:8.0,vertical: 5),
-                        child: Text("4:20 PM",style: TextStyle(fontWeight: FontWeight.bold),),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                      );
+                    }).toList(),
+                  );
+                }),
           ),
+
           Align(
             alignment: Alignment.bottomLeft,
             child: Container(
-              padding: EdgeInsets.only(left: 10,bottom: 10,top: 10),
+              padding: EdgeInsets.only(left: 10, bottom: 10, top: 5),
               height: 60,
               width: double.infinity,
               color: Colors.white,
               child: Row(
                 children: <Widget>[
-                  SizedBox(width: 15,),
+                  SizedBox(
+                    width: 15,
+                  ),
                   Expanded(
                     child: TextField(
+                      controller: messageController,
                       decoration: InputDecoration(
                           hintText: "Write message...",
                           hintStyle: TextStyle(color: Colors.black54),
-                          border: InputBorder.none
-                      ),
+                          border: InputBorder.none),
                     ),
                   ),
-                  SizedBox(width: 15,),
+                  SizedBox(
+                    width: 15,
+                  ),
                   FloatingActionButton(
-                    onPressed: (){
-                      print("send message");
+                    onPressed: () {
+                      _sendMessage();
                     },
-                    child: Icon(Icons.send,color: Colors.white,size: 18,),
+                    child: Icon(
+                      Icons.send,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                     backgroundColor: Colors.blue[700],
                     elevation: 0,
                   ),
                 ],
-
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _sendMessage() {
+    print("sending message"+messageController.text);
+    String myTimestamp = Timestamp.now().seconds.toString();
+    print("timestamp $myTimestamp");
+
+    //write message to firestore database
+    messagesCollection
+        .doc(conversationID)
+        .collection(conversationID)
+        .doc(myTimestamp)
+        .set({
+      'content': messageController.text, // John Doe
+      'idFrom': widget.userUid,
+      'idTo': widget.peerUid,
+      'read': false,
+      'timestamp' : myTimestamp
+    })
+        .then((value){ print("Message Sent");messageController.clear();})
+        .catchError((error) => print("Failed to add user: $error"));
+
   }
 }
