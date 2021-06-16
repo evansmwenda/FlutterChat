@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "759135646385",
+    "project_id": "flutterchat-e5300",
+    "storage_bucket": "flutterchat-e5300.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759135646385:android:d78d9ecacab755b719a890",
+        "android_client_info": {
+          "package_name": "com.mwenda.flutter_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "759135646385-kvq9v3a80tinsgeepcckgst5kfakonr3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1mcGoOZLuEVF1uviQ2Fd2-kDuPaYbpUk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "759135646385-kvq9v3a80tinsgeepcckgst5kfakonr3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
