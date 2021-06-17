@@ -110,6 +110,10 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   _startMessagesCheck(String uid)  {
+    print("clearing map");
+    // lastMesos.clear();
+    // lastMesos = new Map();
+
     //this method fetches last messages
     //1.get the user ids and get the conversation ids from there
     String conversationID = getConversationID(user.uid,uid);
@@ -132,11 +136,11 @@ class _HomeTabState extends State<HomeTab> {
       });
     });
     if(shouldReset){
-      Future.delayed(Duration(milliseconds: 5000), () {
+      Future.delayed(Duration(milliseconds: 3000), () {
         // Do something
         setState(() {
           print("i am running again");
-          shouldReset = false;
+          shouldReset = true;
         });
       });
 
