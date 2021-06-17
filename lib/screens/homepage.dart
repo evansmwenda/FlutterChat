@@ -51,7 +51,7 @@ class _HomepageState extends State<Homepage> {
           index: _pageIndex,
           height: 60.0,
           items: <Widget>[
-            Icon(Icons.home, size: 25,color: Colors.white,),
+            Icon(Icons.message, size: 25,color: Colors.white,),
             Icon(Icons.search, size: 25,color: Colors.white,),
             Icon(Icons.perm_identity, size: 25,color: Colors.white,),
           ],

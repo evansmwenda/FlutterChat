@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,11 +13,18 @@ class ProfileTab extends StatefulWidget {
 class _ProfileTabState extends State<ProfileTab> {
   String  _userName, _emailAddress;
   SharedPreferences _prefs;
+  final User user = FirebaseAuth.instance.currentUser;
+  Stream<QuerySnapshot> _messagesStream;
+
 
   @override
   void initState() {
-    getPrefs();
+    ////filter user list
     super.initState();
+    // _messagesStream = FirebaseFirestore.instance
+    //     .collection('users'
+    //     .doc(user.uid)
+    //     .snapshots();
   }
 
   Future<void> getPrefs() async {

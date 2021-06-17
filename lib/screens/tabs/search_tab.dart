@@ -14,7 +14,7 @@ class SearchTab extends StatefulWidget {
 class _SearchTabState extends State<SearchTab> {
   TextEditingController controller = new TextEditingController();
   final User user = FirebaseAuth.instance.currentUser;
-  final Stream<QuerySnapshot> _usersStream =
+  Stream<QuerySnapshot> _usersStream =
   FirebaseFirestore.instance.collection('users').snapshots();
   CollectionReference messagesCollection = FirebaseFirestore.instance.collection('messages');
 
@@ -40,6 +40,8 @@ class _SearchTabState extends State<SearchTab> {
   void initState() {
     super.initState();
     getUserDetails();
+    _usersStream =
+        FirebaseFirestore.instance.collection('users').where("id", isNotEqualTo: user.uid).snapshots();
   }
 
   @override
@@ -108,6 +110,7 @@ class _SearchTabState extends State<SearchTab> {
   }
 
   onSearchTextChanged(String text) async {
+    print("searching ->"+text);
     _searchResult.clear();
     if (text.isEmpty) {
       setState(() {});

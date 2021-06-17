@@ -13,14 +13,21 @@ class HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<HomeTab> {
   final User user = FirebaseAuth.instance.currentUser;
-  final Stream<QuerySnapshot> _usersStream =
+  Stream<QuerySnapshot> _usersStream =
       FirebaseFirestore.instance.collection('users').snapshots();
-  final Stream<QuerySnapshot> _messagesStream =
-  FirebaseFirestore.instance.collection('messages').snapshots();
+  Stream<DocumentSnapshot> _messagesStream =
+  FirebaseFirestore.instance.collection('messages').doc().snapshots();
+  var lastMesos = new Map();
+  List<String> lastMessages= ["Loading...","Losfd"];
+  bool shouldReset = true;
 
-
-
-
+  @override
+  void initState() {
+    ////filter user list
+    super.initState();
+    _usersStream =
+        FirebaseFirestore.instance.collection('users').where("id", isNotEqualTo: user.uid).snapshots();
+  }
 
 
   @override
@@ -39,20 +46,27 @@ class _HomeTabState extends State<HomeTab> {
                 return Text("Loading");
               }
 
+
               return new ListView(
                 children: snapshot.data.docs.map((DocumentSnapshot document) {
                   Map<String, dynamic> data =
                       document.data() as Map<String, dynamic>;
-                  return new ListTile(
-                    onTap: () => _gotoChats(data['id'],data['name']),
-                    title: Text(data['name']),
-                    subtitle: Text(data['email']),
-                    leading: CircleAvatar(
-                      radius: 20.0,
-                      // backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage('assets/user.webp'),
-                    ),
-                  );
+                  print(data['id']);
+                  _startMessagesCheck(data['id']);
+                  var uuid = data['id'];
+                  //hide the current user
+                  // if(data['id'] == user.uid){
+                    return new ListTile(
+                      onTap: () => _gotoChats(data['id'],data['name']),
+                      title: Text(data['name']),
+                      subtitle: Text(lastMesos[uuid] ?? "Loading..."),
+                      leading: CircleAvatar(
+                        radius: 20.0,
+                        // backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage('assets/user.webp'),
+                      ),
+                    );
+                  //}
                 }).toList(),
               );
             }));
@@ -94,4 +108,59 @@ class _HomeTabState extends State<HomeTab> {
           name: name,
         ),),);
   }
+
+  _startMessagesCheck(String uid)  {
+    //this method fetches last messages
+    //1.get the user ids and get the conversation ids from there
+    String conversationID = getConversationID(user.uid,uid);
+    print("message convo id->>"+conversationID);
+
+    //get the last message of this document collection
+    print("printing last message");
+    Stream<QuerySnapshot<Map<String, dynamic>>> variable = FirebaseFirestore.instance
+        .collection('messages')
+        .doc(conversationID)
+        .collection(conversationID)
+        .snapshots();
+    variable.forEach((field) {
+      field.docs.asMap().forEach((index, data) {
+        String meso = field.docs[index]["content"];
+        lastMesos[uid]=meso;
+        lastMessages.add(meso);
+        print("messog->"+meso);
+        //IF I PRINT HERE, IT SHOWS THE PRODUCTS.
+      });
+    });
+    if(shouldReset){
+      Future.delayed(Duration(milliseconds: 5000), () {
+        // Do something
+        setState(() {
+          print("i am running again");
+          shouldReset = false;
+        });
+      });
+
+
+    }
+    print("all messages=>"+lastMessages.toString());
+
+
+
+  }
+}
+
+class Message {
+  final String content;
+  final String idFrom;
+  final String idTo;
+  final String timestamp;
+
+  Message({this.content,this.idFrom,this.idTo,this.timestamp});
+
+  factory Message.fromDocument(DocumentSnapshot doc) {
+    return Message(
+      content: doc['content'],
+    );
+  }
+
 }
