@@ -44,7 +44,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(title: "FlutterChat"),
+      appBar: MyAppBar(title: "FlutterChat",),
       body: _showPage,
         bottomNavigationBar: CurvedNavigationBar(
           key: _bottomNavigationKey,

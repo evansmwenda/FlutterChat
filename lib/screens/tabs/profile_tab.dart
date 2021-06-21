@@ -15,6 +15,7 @@ class _ProfileTabState extends State<ProfileTab> {
   SharedPreferences _prefs;
   final User user = FirebaseAuth.instance.currentUser;
   Stream<QuerySnapshot> _messagesStream;
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
 
 
   @override
@@ -88,22 +89,28 @@ class _ProfileTabState extends State<ProfileTab> {
                                     )),
                               ],
                             ),
-                            FutureBuilder<SharedPreferences>(
-                                future: SharedPreferences.getInstance(),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<SharedPreferences> snapshot) {
-                                  switch (snapshot.connectionState) {
-                                    case ConnectionState.none:
-                                      return null;
-                                    case ConnectionState.waiting:
-                                      return Container();
-                                    case ConnectionState.active:
-                                      return Container();
-                                    case ConnectionState.done:
-                                      return _buildUserData(snapshot.data);
-                                  }
-                                  return Container();
-                                }),
+                            FutureBuilder<DocumentSnapshot>(
+                              future: users.doc(user.uid).get(),
+                              builder:
+                                  (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+
+                                if (snapshot.hasError) {
+                                  return Text("Something went wrong");
+                                }
+
+                                if (snapshot.hasData && !snapshot.data.exists) {
+                                  return Text("Document does not exist");
+                                }
+
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  Map<String, dynamic> data = snapshot.data.data() as Map<String, dynamic>;
+                                  return _buildUserData(data);
+                                  // return Text("Full Name: ${data['full_name']} ${data['last_name']}");
+                                }
+
+                                return Text("loading");
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -121,7 +128,7 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
-  Widget _buildUserData(SharedPreferences data) {
+  Widget _buildUserData(var data) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +136,7 @@ class _ProfileTabState extends State<ProfileTab> {
         children: [
           Text(
             // data.getString("fullName") ?? "John Doe",
-            "John Doe",
+            data['name'] ?? "",
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey,
@@ -137,16 +144,8 @@ class _ProfileTabState extends State<ProfileTab> {
             ),
           ),
           Text(
-            // data.getString("phoneNumber") ?? "+254712345678",
-            "+254712345678",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-          Text(
             // data.getString("emailAddress") ?? "johndoe@gmail.com",
-            "johndoe@gmail.com",
+            data['email'] ?? "",
             style: TextStyle(
               fontSize: 13,
               color: Colors.grey,
