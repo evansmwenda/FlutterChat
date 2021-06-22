@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_chat/screens/chat_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -65,7 +66,7 @@ class _SearchTabState extends State<SearchTab> {
                   icon: new Icon(Icons.cancel),
                   onPressed: () {
                     controller.clear();
-                    onSearchTextChanged('');
+                    onSearchTextChanged(controller.text);
                   },
                 ),
               ),
@@ -137,7 +138,7 @@ class _SearchTabState extends State<SearchTab> {
                 child: Text("Ok"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _sendChatRequest(uid);
+                  _sendChatRequest(uid,name);
                 },
               ),
               TextButton(
@@ -154,7 +155,7 @@ class _SearchTabState extends State<SearchTab> {
         });
   }
 
-  void _sendChatRequest(String uid) {
+  void _sendChatRequest(String uid,String name) {
     //write message to firestore database
     print("sending chat request");
     String myTimestamp = DateTime.now().millisecondsSinceEpoch.toString();
@@ -177,6 +178,14 @@ class _SearchTabState extends State<SearchTab> {
       'timestamp': myTimestamp
     }).then((value) {
       print("Message Sent");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            peerUid: uid,
+            userUid: user.uid,
+            name: name,
+          ),),);
     }).catchError((error) => print("Failed to add user: $error"));
   }
 

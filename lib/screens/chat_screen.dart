@@ -102,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     bottomLeft: Radius.circular(20),
                                   )),
                                   color: (widget.userUid == data['idTo'] //"receiver"
-                                      ? Colors.grey.shade200
+                                      ? Colors.grey[400]
                                       : Colors.blue),
                                 ),
                                 padding:
@@ -125,7 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     left: 8.0,right: 8.0, top: 2,bottom:5),
                                 child: Text(
                                  "$formattedDate",//+ DateTime.parse(data['timestamp']).toString(),
-                                  style: TextStyle(fontWeight: FontWeight.w400),
+                                  style: TextStyle(fontWeight: FontWeight.w300,fontSize: 11.0),
                                 ),
                               ),
                             ],
