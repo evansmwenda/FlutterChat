@@ -20,6 +20,7 @@ class _HomeTabState extends State<HomeTab> {
   var lastMesos = new Map();
   List<String> lastMessages= ["Loading...","Losfd"];
   bool shouldReset = true;
+  bool exists = false;
 
   @override
   void initState() {
@@ -59,7 +60,7 @@ class _HomeTabState extends State<HomeTab> {
                     return new ListTile(
                       onTap: () => _gotoChats(data['id'],data['name']),
                       title: Text(data['name']),
-                      subtitle: Text(lastMesos[uuid] ?? "Loading..."),
+                      subtitle: Text(lastMesos[uuid] ?? ""),
                       leading: CircleAvatar(
                         radius: 20.0,
                         // backgroundColor: Colors.transparent,
@@ -109,7 +110,21 @@ class _HomeTabState extends State<HomeTab> {
         ),),);
   }
 
-  _startMessagesCheck(String uid)  {
+  Future<bool> checkExist(String docID) async {
+    try {
+      await FirebaseFirestore.instance.doc("messages/$docID").get().then((doc) {
+        if (doc.exists)
+          exists = true;
+        else
+          exists = false;
+      });
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  _startMessagesCheck(String uid)  async {
     print("clearing map");
     // lastMesos.clear();
     // lastMesos = new Map();
@@ -118,6 +133,14 @@ class _HomeTabState extends State<HomeTab> {
     //1.get the user ids and get the conversation ids from there
     String conversationID = getConversationID(user.uid,uid);
     print("message convo id->>"+conversationID);
+    // bool isValid = await checkExist(conversationID);
+    //
+    // if(!isValid){
+    //   //converstaion doesnt exist
+    //   print("no conversation of $uid");
+    // }else{
+    //   print("all converstaions exists");
+    // }
 
     //get the last message of this document collection
     print("printing last message");
@@ -143,8 +166,6 @@ class _HomeTabState extends State<HomeTab> {
           shouldReset = true;
         });
       });
-
-
     }
     print("all messages=>"+lastMessages.toString());
 
