@@ -184,6 +184,11 @@ class _ChatScreenState extends State<ChatScreen> {
     String myTimestamp = DateTime.now().millisecondsSinceEpoch.toString();
     print("timestamp $myTimestamp");
 
+    if(messageController.text ==""){
+      print("you cant sent empty messages");
+      return;
+    }
+
     //write message to firestore database
     messagesCollection
         .doc(conversationID)

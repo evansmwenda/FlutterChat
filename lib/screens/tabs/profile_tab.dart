@@ -143,9 +143,28 @@ class _ProfileTabState extends State<ProfileTab> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          SizedBox(height: 10.0,),
           Text(
             // data.getString("emailAddress") ?? "johndoe@gmail.com",
             data['email'] ?? "",
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey,
+            ),
+          ),
+          SizedBox(height: 10.0,),
+          Text(
+            // data.getString("emailAddress") ?? "johndoe@gmail.com",
+            data['phone'] ?? "",
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey,
+            ),
+          ),
+          SizedBox(height: 10.0,),
+          Text(
+            // data.getString("emailAddress") ?? "johndoe@gmail.com",
+            data['about'] ?? "",
             style: TextStyle(
               fontSize: 13,
               color: Colors.grey,

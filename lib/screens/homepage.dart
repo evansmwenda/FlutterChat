@@ -1,5 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/screens/login_screen.dart';
 import 'package:flutter_chat/screens/tabs/home_tab.dart';
 import 'package:flutter_chat/screens/tabs/profile_tab.dart';
 import 'package:flutter_chat/screens/tabs/search_tab.dart';
@@ -43,8 +45,26 @@ class _HomepageState extends State<Homepage> {
   }
   @override
   Widget build(BuildContext context) {
+    Future<void> _signOut() async {
+      print("logging out");
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoginScreen()),
+      );
+    }
+
     return Scaffold(
-      appBar: MyAppBar(title: "FlutterChat",),
+      appBar: AppBar(
+          actions: [
+            IconButton(
+                icon: Icon(Icons.logout),
+                color: Colors.white,
+                onPressed: () => _signOut())
+          ],
+          title: Text("FlutterChat"),
+          ),
       body: _showPage,
         bottomNavigationBar: CurvedNavigationBar(
           key: _bottomNavigationKey,

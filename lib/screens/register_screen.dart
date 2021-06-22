@@ -20,6 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final aboutController = TextEditingController();
   final emailController = TextEditingController();
   final passController = TextEditingController();
   bool _isLoading = false;
@@ -35,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             key: _formKey,
             child: ListView(
               children: [
-                SizedBox(height: 110.0),
+                SizedBox(height: 80.0),
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   cursorColor: Colors.red,
@@ -71,6 +73,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: (value) {
                     if (value.isEmpty) {
                       return "Enter valid Email Address";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  cursorColor: Colors.red,
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: "Phone Number",
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 5.0,
+                      horizontal: 5.0,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return "Enter valid phone number";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.text,
+                  cursorColor: Colors.blueAccent,
+                  controller: aboutController,
+                  decoration: InputDecoration(
+                    labelText: "About Me",
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 5.0,
+                      horizontal: 5.0,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return "Enter valid about me details";
                     }
                     return null;
                   },
@@ -137,32 +181,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
     print("beginning register");
     if (_formKey.currentState.validate()) {
       //register user
+      setState(() {
+        _isLoading = true;
+      });
       _registerUser();
-    }
-  }
-
-  bool _validateFields() {
-    String email, pass = "";
-    email = emailController.text;
-    pass = passController.text;
-
-    if (pass == "" || email == "") {
-      //one of the required fields missing
-      return false;
-    } else {
-      return true;
     }
   }
 
   void _registerUser() {
     print(emailController.text);
     print(passController.text);
+    print(phoneController.text);
+    print(aboutController.text);
     firebaseAuth
         .createUserWithEmailAndPassword(
             email: emailController.text, password: passController.text)
         .then((result) {
       print("result from register->" + result.user.uid);
       addUser(result.user.uid).then((res) {
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -170,6 +209,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       });
     }).catchError((err) {
+      setState(() {
+        _isLoading = true;
+      });
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -193,9 +235,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return users
         .doc(uid)
         .set({
-          'name': nameController.text, // John Doe
-          'email': emailController.text,
           'id': uid,
+          'name': nameController.text,
+          'email': emailController.text, // John Doe
+          'phone': phoneController.text, // 0712345678
+          'about': aboutController.text, // about me
         })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -207,5 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     nameController.dispose();
     emailController.dispose();
     passController.dispose();
+    phoneController.dispose();
+    aboutController.dispose();
   }
 }

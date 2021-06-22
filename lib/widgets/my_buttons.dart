@@ -16,7 +16,7 @@ class MyElevatedButton extends StatelessWidget {
               side: BorderSide(color: Colors.blue),
             )
         ),
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue[700]),
+        // backgroundColor: MaterialStateProperty.all<Color>(Colors.blue[700]),
       ),
       onPressed: () => onPressHandler(),
       child: SizedBox(

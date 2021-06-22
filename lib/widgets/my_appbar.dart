@@ -13,33 +13,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _signOut() async {
-      print("logging out");
-      await FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => LoginScreen()),
-      );
-    }
+
 
     return AppBar(
-        actions: [
-          IconButton(
-              icon: Icon(Icons.logout),
-              color: Colors.white,
-              onPressed: () => _signOut())
-        ],
-        title: Text(title),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xff005eff),
-                const Color(0xff002b6b),
-              ],
-            ),
-          ),
-        ));
+        title: Text(title),);
   }
 }
