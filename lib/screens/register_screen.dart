@@ -129,6 +129,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.text,
                   cursorColor: Colors.blue,
                   controller: passController,
+                  obscureText: true,
+                  enableSuggestions: false,
+                  autocorrect: false,
                   decoration: InputDecoration(
                     labelText: "Password",
                     contentPadding: EdgeInsets.symmetric(

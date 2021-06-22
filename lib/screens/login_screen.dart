@@ -60,6 +60,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextFormField(
                         keyboardType: TextInputType.text,
                         cursorColor: Colors.blue,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
                         controller: passController,
                         decoration: InputDecoration(
                           labelText: "Password",
