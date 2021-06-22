@@ -33,7 +33,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 25.0),
         child: Center(
-          child: Form(
+          child: _isLoading ? CircularProgressIndicator(
+              backgroundColor: Colors.black,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue)) :
+          Form(
             key: _formKey,
             child: ListView(
               children: [

@@ -29,6 +29,7 @@ dependencies:
   curved_navigation_bar: ^0.3.7
   shared_preferences:
   http: ^0.13.3
+  intl: ^0.17.0
 
 
   # The following adds the Cupertino Icons font to your application.

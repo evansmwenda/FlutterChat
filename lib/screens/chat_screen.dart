@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/models/chat_message.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_chat/widgets/my_appbar.dart';
 import 'package:flutter_chat/widgets/route_arguments.dart';
 
@@ -68,6 +68,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: snapshot.data.docs.map((DocumentSnapshot document) {
                       Map<String, dynamic> data =
                       document.data() as Map<String, dynamic>;
+                      int timeInMillis = int.parse(data['timestamp']);
+                      var date = DateTime.fromMillisecondsSinceEpoch(timeInMillis);
+                      var formattedDate = DateFormat('MM/dd, hh:mm a').format(date); // 12/31, 11:59 pm
                       return Container(
                         padding:
                         EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
@@ -100,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   )),
                                   color: (widget.userUid == data['idTo'] //"receiver"
                                       ? Colors.grey.shade200
-                                      : Colors.blue[700]),
+                                      : Colors.blue),
                                 ),
                                 padding:
                                 EdgeInsets.symmetric(vertical: 16, horizontal: 10),
@@ -121,7 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 padding: const EdgeInsets.only(
                                     left: 8.0,right: 8.0, top: 2,bottom:5),
                                 child: Text(
-                                 "4:21pm",//+ DateTime.parse(data['timestamp']).toString(),
+                                 "$formattedDate",//+ DateTime.parse(data['timestamp']).toString(),
                                   style: TextStyle(fontWeight: FontWeight.w400),
                                 ),
                               ),
@@ -167,7 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: Colors.white,
                       size: 18,
                     ),
-                    backgroundColor: Colors.blue[700],
+                    backgroundColor: Colors.blue,
                     elevation: 0,
                   ),
                 ],

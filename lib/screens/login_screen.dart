@@ -27,81 +27,87 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 25.0),
         child: Center(
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                SizedBox(height: 110.0),
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  cursorColor: Colors.red,
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email Address",
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 5.0,
-                      horizontal: 5.0,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "Enter valid Email Address";
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.text,
-                  cursorColor: Colors.blue,
-                  controller: passController,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 5.0,
-                      horizontal: 5.0,
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "Enter valid password";
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 20.0,),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          child: _isLoading
+              ? CircularProgressIndicator(
+                  backgroundColor: Colors.black,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue))
+              : Form(
+                  key: _formKey,
+                  child: ListView(
                     children: [
-                      Text("Don\'t have an account ?"),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, RegisterScreen.routeName);
+                      SizedBox(height: 110.0),
+                      TextFormField(
+                        keyboardType: TextInputType.emailAddress,
+                        cursorColor: Colors.red,
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: "Email Address",
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 5.0,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "Enter valid Email Address";
+                          }
+                          return null;
                         },
-                        child: Text("Sign Up"),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      TextFormField(
+                        keyboardType: TextInputType.text,
+                        cursorColor: Colors.blue,
+                        controller: passController,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 5.0,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "Enter valid password";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Don\'t have an account ?"),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, RegisterScreen.routeName);
+                              },
+                              child: Text("Sign Up"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 60,
+                      ),
+                      Container(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: MyElevatedButton(
+                            "login".toUpperCase(),
+                            () => _beginLogin(context),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 60,
-                ),
-                Container(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: MyElevatedButton(
-                      "login".toUpperCase(),
-                      () => _beginLogin(context),
-                    ),
-                  ),
-                ),
-
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -109,8 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _beginLogin(BuildContext context) {
     print("beginning login");
-    if(_formKey.currentState.validate()){
+    if (_formKey.currentState.validate()) {
       //login user
+      setState(() => _isLoading = true);
       _loginUser();
     }
   }
@@ -137,10 +144,12 @@ class _LoginScreenState extends State<LoginScreen> {
     print(passController.text);
     firebaseAuth
         .signInWithEmailAndPassword(
-        email: emailController.text, password: passController.text)
+            email: emailController.text, password: passController.text)
         .then((result) {
+      setState(() => _isLoading = false);
       saveUser(result.user.uid);
     }).catchError((err) {
+      setState(() => _isLoading = false);
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -168,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> saveUser(String uid) {
-    print("user id->>"+uid);
+    print("user id->>" + uid);
     print("saving user details");
     Navigator.pushReplacementNamed(context, Homepage.routeName);
   }
